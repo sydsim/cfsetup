@@ -1,4 +1,4 @@
-import os, sys, json
+import os, sys, json, shutil
 import urllib.request
 from html.parser import HTMLParser
 
@@ -12,7 +12,6 @@ class ExampleParser(HTMLParser):
     self.div_level = 0
 
   def handle_starttag(self, tag, attrs):
-    print('---', tag, attrs, self.status)
     if tag == 'div':
       class_val = [v for k, v in attrs if k == 'class']
       if len(class_val) == 1:
@@ -57,9 +56,14 @@ class ExampleParser(HTMLParser):
 contest_id = sys.argv[1]
 base = 'http://codeforces.com/contest/%s/' % (contest_id)
 
+print('Setting... ' + base)
+
+contest_dir = 'contest/%s/' % (contest_id)
+
 for i in range(26):
   problem_id = chr(ord('A') + i)
   suffix = 'problem/%s' % (problem_id)
+
   page = urllib.request.urlopen(base + suffix)
   if page.getcode() != 200:
     break
@@ -71,35 +75,27 @@ for i in range(26):
 
   if not parser.example_input and not parser.example_output:
     break
+  print(suffix)
 
-  os.makedirs('%s/%s' % (contest_id, problem_id), exist_ok=True)
-  os.makedirs('%s/%s/input' % (contest_id, problem_id), exist_ok=True)
-  os.makedirs('%s/%s/output' % (contest_id, problem_id), exist_ok=True)
+  problem_dir = contest_dir + '%s/' % (problem_id)
+  os.makedirs(problem_dir + 'input', exist_ok=True)
+  os.makedirs(problem_dir + 'output', exist_ok=True)
+  os.makedirs(problem_dir + 'conf', exist_ok=True)
 
   data_id = 0
   for in_data, out_data in zip(parser.example_input, parser.example_output):
-    in_fname = '%s/%s/input/input_%d' % (contest_id, problem_id, data_id)
-    out_fname = '%s/%s/output/output_%d' % (contest_id, problem_id, data_id)
+    in_fname = problem_dir + '/input/input_%d' % (data_id)
+    out_fname = problem_dir + '/output/output_%d' % (data_id)
     with open(in_fname, 'w') as f:
       f.write('\n'.join(in_data))
     with open(out_fname, 'w') as f:
       f.write('\n'.join(out_data))
     data_id += 1
 
-  pinfo_fname = '%s/%s/problem_info.json' % (contest_id, problem_id)
+  pinfo_fname = problem_dir + '/conf/problem_info.json'
   pinfo = {
     'num_testcase': data_id,
   }
   with open(pinfo_fname, 'w') as f:
     f.write(json.dumps(pinfo))
-
-'''
-대회 번호 입력
-번호로 디렉토리 생성
-문제별 디렉토리 생성
-input output 디렉토리 세팅
-기본코드 다 짜놓음
-# c++코드로 아규먼트있으면 인풋 파일로 받음
-# BIT 같은거 미리 다 짜놓음
-
-'''
+  shutil.copyfile('base/basic.cpp', problem_dir + 'solution.cpp')
