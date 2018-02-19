@@ -9,9 +9,9 @@ void run() {
 }
 
 int main(int argc, char **argv) {
-  if (argc == 2) {
-    char input_file[20];
-    sprintf(input_file, "input/input_%s", argv[1]);
+  if (argc == 4) {
+    char input_file[50];
+    sprintf(input_file, "contest/%s/%s/input/input_%s", argv[1], argv[2], argv[3]);
     freopen(input_file, "r", stdin);
   }
 

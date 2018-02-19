@@ -18,7 +18,7 @@ with open('%s/conf/problem_info.json' % (base_dir), 'r') as f:
 num_testcase = problem_info['num_testcase']
 
 def validate(result, answer):
-  result_lines = result.strip().split()
+  result_lines = result.strip().split('\n')
   if len(result_lines) != len(answer):
     return False
   for r, a in zip(result_lines, answer):
@@ -29,7 +29,7 @@ def validate(result, answer):
 print('Start TEST!\n')
 is_failed = False
 for t_i in range(num_testcase):
-  cmd = '%s/conf/executable %d' % (base_dir, t_i)
+  cmd = '%s/conf/executable %s %s %d' % (base_dir, contest_id, problem_id, t_i)
   result = subprocess.check_output(cmd, shell=True).decode()
 
   with open('%s/output/output_%d' % (base_dir, t_i), 'r') as f:

@@ -99,3 +99,4 @@ for i in range(26):
   with open(pinfo_fname, 'w') as f:
     f.write(json.dumps(pinfo))
   shutil.copyfile('base/basic.cpp', problem_dir + 'solution.cpp')
+  shutil.copyfile('base/basic.py', problem_dir + 'solution.py')
